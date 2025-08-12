@@ -424,6 +424,4 @@ public class GameScene : Scene
         // Draw the UI.
         _ui.Draw();
     }
-
-
 }
