@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using DungeonSlime.Library;
 using DungeonSlime.Library.Graphics;
+using DungeonSlime.Engine.Models;
+using DungeonSlime.Engine.Input;
 
-namespace DungeonSlime.GameObjects;
+namespace DungeonSlime.Engine.GameObjects;
 
 public class Slime
 {
@@ -254,8 +253,8 @@ public class Slime
 
         // Create the bounds using the calculated visual position of the head.
         Circle bounds = new Circle(
-            (int)(pos.X + (_sprite.Width * 0.5f)),
-            (int)(pos.Y + (_sprite.Height * 0.5f)),
+            (int)(pos.X + _sprite.Width * 0.5f),
+            (int)(pos.Y + _sprite.Height * 0.5f),
             (int)(_sprite.Width * 0.5f)
         );
 

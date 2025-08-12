@@ -1,10 +1,9 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using DungeonSlime.Library;
 using DungeonSlime.Library.Graphics;
 
-namespace DungeonSlime.GameObjects;
+namespace DungeonSlime.Engine.GameObjects;
 
 public class Bat
 {

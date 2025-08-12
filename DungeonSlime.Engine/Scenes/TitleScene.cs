@@ -1,6 +1,4 @@
-﻿using System;
-using DungeonSlime.UI;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -10,10 +8,9 @@ using MonoGameGum.GueDeriving;
 using DungeonSlime.Library;
 using DungeonSlime.Library.Graphics;
 using DungeonSlime.Library.Scenes;
+using DungeonSlime.Engine.UI;
 
-
-
-namespace DungeonSlime.Scenes;
+namespace DungeonSlime.Engine.Scenes;
 
 public class TitleScene : Scene
 {

@@ -1,15 +1,15 @@
-﻿using System;
-using DungeonSlime.GameObjects;
-using DungeonSlime.UI;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameGum;
 using DungeonSlime.Library;
 using DungeonSlime.Library.Graphics;
 using DungeonSlime.Library.Scenes;
+using DungeonSlime.Engine.UI;
+using DungeonSlime.Engine.GameObjects;
+using DungeonSlime.Engine.Input;
 
-namespace DungeonSlime.Scenes;
+namespace DungeonSlime.Engine.Scenes;
 
 public class GameScene : Scene
 {
@@ -120,8 +120,8 @@ public class GameScene : Scene
         // Calculate the position for the slime, which will be at the center
         // tile of the tile map.
         Vector2 slimePos = new Vector2();
-        slimePos.X = (_tilemap.Columns / 2) * _tilemap.TileWidth;
-        slimePos.Y = (_tilemap.Rows / 2) * _tilemap.TileHeight;
+        slimePos.X = _tilemap.Columns / 2 * _tilemap.TileWidth;
+        slimePos.Y = _tilemap.Rows / 2 * _tilemap.TileHeight;
 
         // Initialize the slime.
         _slime.Initialize(slimePos, _tilemap.TileWidth);
