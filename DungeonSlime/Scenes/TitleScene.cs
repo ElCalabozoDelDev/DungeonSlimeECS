@@ -7,9 +7,9 @@ using Microsoft.Xna.Framework.Input;
 using MonoGameGum;
 using Gum.Forms.Controls;
 using MonoGameGum.GueDeriving;
-using MonoGameLibrary;
-using MonoGameLibrary.Graphics;
-using MonoGameLibrary.Scenes;
+using DungeonSlime.Library;
+using DungeonSlime.Library.Graphics;
+using DungeonSlime.Library.Scenes;
 
 
 

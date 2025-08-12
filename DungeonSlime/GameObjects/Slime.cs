@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using MonoGameLibrary;
-using MonoGameLibrary.Graphics;
+using DungeonSlime.Library;
+using DungeonSlime.Library.Graphics;
 
 namespace DungeonSlime.GameObjects;
 

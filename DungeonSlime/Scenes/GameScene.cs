@@ -5,9 +5,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameGum;
-using MonoGameLibrary;
-using MonoGameLibrary.Graphics;
-using MonoGameLibrary.Scenes;
+using DungeonSlime.Library;
+using DungeonSlime.Library.Graphics;
+using DungeonSlime.Library.Scenes;
 
 namespace DungeonSlime.Scenes;
 

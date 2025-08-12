@@ -1,6 +1,6 @@
 ﻿using DungeonSlime.Scenes;
 using Microsoft.Xna.Framework.Media;
-using MonoGameLibrary;
+using DungeonSlime.Library;
 using MonoGameGum;
 using Gum.Forms.Controls;
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using MonoGameLibrary;
-using MonoGameLibrary.Input;
+using DungeonSlime.Library;
+using DungeonSlime.Library.Input;
 
 namespace DungeonSlime;
 

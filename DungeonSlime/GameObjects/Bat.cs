@@ -1,8 +1,8 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using MonoGameLibrary;
-using MonoGameLibrary.Graphics;
+using DungeonSlime.Library;
+using DungeonSlime.Library.Graphics;
 
 namespace DungeonSlime.GameObjects;
 

@@ -7,8 +7,8 @@ using Microsoft.Xna.Framework.Content;
 using MonoGameGum;
 using Gum.Forms.Controls;
 using MonoGameGum.GueDeriving;
-using MonoGameLibrary;
-using MonoGameLibrary.Graphics;
+using DungeonSlime.Library;
+using DungeonSlime.Library.Graphics;
 
 namespace DungeonSlime.UI;
 
