@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 
-namespace MonoGameLibrary.Graphics;
+namespace DungeonSlime.Library.Graphics;
 
 public class TextureAtlas
 {

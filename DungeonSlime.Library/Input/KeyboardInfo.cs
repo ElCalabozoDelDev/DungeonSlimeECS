@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Input;
 
-namespace MonoGameLibrary.Input;
+namespace DungeonSlime.Library.Input;
 public class KeyboardInfo
 {
     /// <summary>

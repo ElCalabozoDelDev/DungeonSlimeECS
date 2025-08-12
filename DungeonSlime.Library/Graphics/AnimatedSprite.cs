@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 
-namespace MonoGameLibrary.Graphics;
+namespace DungeonSlime.Library.Graphics;
 
 public class AnimatedSprite : Sprite
 {

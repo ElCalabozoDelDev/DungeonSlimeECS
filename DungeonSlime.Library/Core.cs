@@ -3,11 +3,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using MonoGameLibrary.Audio;
-using MonoGameLibrary.Input;
-using MonoGameLibrary.Scenes;
+using DungeonSlime.Library.Audio;
+using DungeonSlime.Library.Input;
+using DungeonSlime.Library.Scenes;
 
-namespace MonoGameLibrary;
+namespace DungeonSlime.Library;
 
 public class Core : Game
 {

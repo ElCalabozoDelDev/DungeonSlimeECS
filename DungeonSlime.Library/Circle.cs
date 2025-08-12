@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 
-namespace MonoGameLibrary;
+namespace DungeonSlime.Library;
 
 public readonly struct Circle : IEquatable<Circle>
 {

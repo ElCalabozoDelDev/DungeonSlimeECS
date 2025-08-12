@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MonoGameLibrary.Graphics;
+namespace DungeonSlime.Library.Graphics;
 
 public class Animation
 {

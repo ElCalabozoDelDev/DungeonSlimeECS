@@ -1,4 +1,4 @@
-﻿namespace MonoGameLibrary.Input;
+﻿namespace DungeonSlime.Library.Input;
 
 public enum MouseButton
 {
