@@ -95,6 +95,19 @@ public readonly struct Circle : IEquatable<Circle>
     }
 
     /// <summary>
+    /// Returns a value that indicates whether this circle intersects with the specified axis-aligned bounding box (AABB).
+    /// </summary>
+    /// <param name="aabb"></param>
+    /// <returns></returns>
+    public bool Intersects(AABB aabb)
+    {
+        int closestX = Math.Clamp(X, aabb.Left, aabb.Right);
+        int closestY = Math.Clamp(Y, aabb.Top, aabb.Bottom);
+        float distanceSquared = Vector2.DistanceSquared(new Vector2(X, Y), new Vector2(closestX, closestY));
+        return distanceSquared <= Radius * Radius;
+    }
+
+    /// <summary>
     /// Returns a value that indicates whether this circle and the specified object are equal
     /// </summary>
     /// <param name="obj">The object to compare with this circle.</param>
