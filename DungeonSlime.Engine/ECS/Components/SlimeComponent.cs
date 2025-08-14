@@ -1,4 +1,5 @@
-﻿using DungeonSlime.Engine.Models;
+﻿using System;
+using DungeonSlime.Engine.Models;
 using Microsoft.Xna.Framework;
 
 namespace DungeonSlime.Engine.ECS.Components;
@@ -11,4 +12,9 @@ public class SlimeComponent
     public Vector2 NextDirection { get; set; }
     public Queue<Vector2> InputBuffer { get; set; } = new(2);
     public TimeSpan MovementTimer { get; set; } = TimeSpan.Zero;
+
+    /// <summary>
+    /// Set to true when a body collision is detected by a system; consumers should reset it after handling.
+    /// </summary>
+    public bool BodyCollisionDetected { get; set; }
 }
