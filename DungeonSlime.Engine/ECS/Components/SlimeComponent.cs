@@ -14,12 +14,7 @@ public class SlimeComponent
     public TimeSpan MovementTimer { get; set; } = TimeSpan.Zero;
 
     /// <summary>
-    /// Raised when the head collides with its body.
+    /// Set to true when a body collision is detected by a system; consumers should reset it after handling.
     /// </summary>
-    public event EventHandler? BodyCollision;
-
-    internal void RaiseBodyCollision()
-    {
-        BodyCollision?.Invoke(this, EventArgs.Empty);
-    }
+    public bool BodyCollisionDetected { get; set; }
 }
