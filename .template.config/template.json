@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/template",
+  "author": "TuNombre",
+  "name": "Dungeon Slime Game (MonoGame)",
+  "shortName": "dungeonslime",
+  "identity": "DungeonSlime.Template",
+  "description": "Plantilla basada en DungeonSlime (MonoGame, .NET 8).",
+  "classifications": ["Games", "MonoGame", ".NET 8"],
+  "tags": { "language": "C#", "type": "project" },
+
+  "sourceName": "DungeonSlime",
+  "preferNameDirectory": true,
+
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [
+            "**/[Bb]in/**",
+            "**/[Oo]bj/**",
+            ".git/**",
+            ".vs/**",
+            "**/*.user",
+            "**/*.lock.json",
+            "**/packages/**"
+          ]
+        }
+      ]
+    }
+  ]
+}
