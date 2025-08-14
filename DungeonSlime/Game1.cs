@@ -2,7 +2,7 @@
 using MonoGameGum;
 using Gum.Forms.Controls;
 using DungeonSlime.Engine.Scenes;
-using DungeonSlime.Engine;
+using DungeonSlime.Library;
 
 namespace DungeonSlime;
 

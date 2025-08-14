@@ -53,10 +53,12 @@ public class BatSystem
     private static void Bounce(TransformComponent transform, BatComponent bat, Vector2 normal)
     {
         // Nudge away from wall
+        var position = transform.Position; // Create a local copy of the Position
         if (normal.X != 0)
-            transform.Position.X += normal.X * 4f; // small nudge
+            position.X += normal.X * 4f; // Modify the local copy
         if (normal.Y != 0)
-            transform.Position.Y += normal.Y * 4f;
+            position.Y += normal.Y * 4f;
+        transform.Position = position; // Assign the modified copy back to the property
 
         // Reflect velocity
         bat.Velocity = Vector2.Reflect(bat.Velocity, normal);
