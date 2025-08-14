@@ -25,6 +25,9 @@ public class GameScene : EcsSceneBase
     // Systems
     private SlimeSystem _slimeSystem;
     private BatSystem _batSystem;
+    private CollectSystem _collectSystem;
+    private RenderSystem _renderSystem;
+    private SlimeRenderSystem _slimeRenderSystem;
 
     // ECS entities/components
     private Entity _slimeEntity;
@@ -37,11 +40,11 @@ public class GameScene : EcsSceneBase
     private SpriteComponent _batSprite;
     private BatComponent _bat;
 
+    private Entity _roomEntity;
+    private Entity _scoreEntity;
+
     // Defines the tilemap to draw.
     private Tilemap _tilemap;
-
-    // Defines the bounds of the room that the slime and bat are contained within.
-    private Rectangle _roomBounds;
 
     // The sound effect to play when the slime eats a bat.
     private SoundEffect _collectSoundEffect;
@@ -62,6 +65,8 @@ public class GameScene : EcsSceneBase
     // The speed of the fade to grayscale effect.
     private const float FADE_SPEED = 0.02f;
 
+    private Rectangle _roomBounds;
+
     public override void Initialize()
     {
         // LoadContent is called during base.Initialize().
@@ -70,7 +75,6 @@ public class GameScene : EcsSceneBase
         Core.ExitOnEscape = false;
 
         _roomBounds = Core.GraphicsDevice.PresentationParameters.Bounds;
-        _roomBounds.Inflate(-_tilemap.TileWidth, -_tilemap.TileHeight);
 
         GumService.Default.Root.Children.Clear();
         InitializeUI();
@@ -79,8 +83,14 @@ public class GameScene : EcsSceneBase
         ResetWorld();
         _slimeSystem = new SlimeSystem();
         _batSystem = new BatSystem();
+        _collectSystem = new CollectSystem();
+        _renderSystem = new RenderSystem();
+        _slimeRenderSystem = new SlimeRenderSystem();
         RegisterSystem(_slimeSystem);
-        // BatSystem needs room bounds each frame, so we call it manually in Update
+        RegisterSystem(_batSystem);
+        RegisterSystem(_collectSystem);
+        RegisterRenderSystem(_renderSystem);
+        RegisterRenderSystem(_slimeRenderSystem);
 
         InitializeNewGame();
     }
@@ -114,6 +124,20 @@ public class GameScene : EcsSceneBase
         // Reset ECS world and re-register systems to ensure a clean state
         ResetWorld();
         RegisterSystem(_slimeSystem);
+        RegisterSystem(_batSystem);
+        RegisterSystem(_collectSystem);
+        RegisterRenderSystem(_renderSystem);
+        RegisterRenderSystem(_slimeRenderSystem);
+
+        // Create room bounds entity (deflated to inside of dungeon)
+        _roomBounds = Core.GraphicsDevice.PresentationParameters.Bounds;
+        _roomBounds.Inflate(-_tilemap.TileWidth, -_tilemap.TileHeight);
+        _roomEntity = World.Create();
+        _roomEntity.Add(new RoomBoundsComponent { Bounds = _roomBounds });
+
+        // Create score holder entity
+        _scoreEntity = World.Create();
+        _scoreEntity.Add(new ScoreComponent { Score = 0 });
 
         // Center tile position for slime
         Vector2 slimePos = new Vector2(
@@ -199,7 +223,7 @@ public class GameScene : EcsSceneBase
             return;
         }
 
-        // Run base ECS loop (updates registered systems like SlimeSystem)
+        // Run base ECS loop (updates registered systems)
         base.Update(gameTime);
 
         // If slime collided with its body, trigger game over and reset flag
@@ -210,28 +234,12 @@ public class GameScene : EcsSceneBase
             return;
         }
 
-        // Run BatSystem with room bounds
-        _batSystem.Update(gameTime, World, _roomBounds);
+        // Sync score stored in ECS to UI value
+        SyncScoreToUi();
 
-        // Game-specific collision checks
-        CollisionChecks();
-    }
-
-    private void CollisionChecks()
-    {
-        Circle slimeBounds = GetSlimeBounds();
-        Circle batBounds = GetBatBounds();
-
-        if (slimeBounds.Intersects(batBounds))
-        {
-            PositionBatAwayFromSlime();
-            BatSystem.RandomizeVelocity(_bat);
-            GrowSlime();
-            _score += 100;
-            _ui.UpdateScoreText(_score);
-            Core.Audio.PlaySoundEffect(_collectSoundEffect);
-        }
-
+        // Slime vs room bounds (game over)
+        var slimeBounds = GetSlimeBounds();
+        _roomBounds = _roomEntity.Get<RoomBoundsComponent>().Bounds; // refresh local cache if scene resized
         if (slimeBounds.Top < _roomBounds.Top ||
             slimeBounds.Bottom > _roomBounds.Bottom ||
             slimeBounds.Left < _roomBounds.Left ||
@@ -242,17 +250,21 @@ public class GameScene : EcsSceneBase
         }
     }
 
-    private void GrowSlime()
+    private void SyncScoreToUi()
     {
-        var tail = _slime.Segments[^1];
-        var basePos = tail.To + tail.ReverseDirection * _slime.Stride;
-        var newTail = new SlimeSegment
+        foreach (var e in World.Entities)
         {
-            At = basePos,
-            To = tail.At,
-            Direction = Vector2.Normalize(tail.At - basePos)
-        };
-        _slime.Segments.Add(newTail);
+            if (e.TryGet(out ScoreComponent scoreComp))
+            {
+                if (_score != scoreComp.Score)
+                {
+                    _score = scoreComp.Score;
+                    _ui.UpdateScoreText(_score);
+                    Core.Audio.PlaySoundEffect(_collectSoundEffect);
+                }
+                break;
+            }
+        }
     }
 
     private Circle GetSlimeBounds()
@@ -266,60 +278,28 @@ public class GameScene : EcsSceneBase
         );
     }
 
-    private Circle GetBatBounds()
-    {
-        int x = (int)(_batTransform.Position.X + _batSprite.Sprite.Width * 0.5f);
-        int y = (int)(_batTransform.Position.Y + _batSprite.Sprite.Height * 0.5f);
-        int radius = (int)(_batSprite.Sprite.Width * 0.25f);
-        return new Circle(x, y, radius);
-    }
-
     private void PositionBatAwayFromSlime()
     {
-        float roomCenterX = _roomBounds.X + _roomBounds.Width * 0.5f;
-        float roomCenterY = _roomBounds.Y + _roomBounds.Height * 0.5f;
+        var slimeBounds = GetSlimeBounds();
+        var r = _roomBounds;
+        float roomCenterX = r.X + r.Width * 0.5f;
+        float roomCenterY = r.Y + r.Height * 0.5f;
         Vector2 roomCenter = new Vector2(roomCenterX, roomCenterY);
-
-        Circle slimeBounds = GetSlimeBounds();
         Vector2 slimeCenter = new Vector2(slimeBounds.X, slimeBounds.Y);
-
         Vector2 centerToSlime = slimeCenter - roomCenter;
-
-        Circle batBounds = GetBatBounds();
-        int padding = batBounds.Radius * 2;
+        var batBoundsRadius = (int)(_batSprite.Sprite.Width * 0.25f);
+        int padding = batBoundsRadius * 2;
 
         Vector2 newBatPosition = Vector2.Zero;
         if (Math.Abs(centerToSlime.X) > Math.Abs(centerToSlime.Y))
         {
-            newBatPosition.Y = Random.Shared.Next(
-                _roomBounds.Top + padding,
-                _roomBounds.Bottom - padding
-            );
-
-            if (centerToSlime.X > 0)
-            {
-                newBatPosition.X = _roomBounds.Left + padding;
-            }
-            else
-            {
-                newBatPosition.X = _roomBounds.Right - padding * 2;
-            }
+            newBatPosition.Y = Random.Shared.Next(r.Top + padding, r.Bottom - padding);
+            newBatPosition.X = centerToSlime.X > 0 ? r.Left + padding : r.Right - padding * 2;
         }
         else
         {
-            newBatPosition.X = Random.Shared.Next(
-                _roomBounds.Left + padding,
-                _roomBounds.Right - padding
-            );
-
-            if (centerToSlime.Y > 0)
-            {
-                newBatPosition.Y = _roomBounds.Top + padding;
-            }
-            else
-            {
-                newBatPosition.Y = _roomBounds.Bottom - padding * 2;
-            }
+            newBatPosition.X = Random.Shared.Next(r.Left + padding, r.Right - padding);
+            newBatPosition.Y = centerToSlime.Y > 0 ? r.Top + padding : r.Bottom - padding * 2;
         }
 
         _batTransform.Position = newBatPosition;
@@ -355,23 +335,20 @@ public class GameScene : EcsSceneBase
         {
             _grayscaleEffect.Parameters["Saturation"].SetValue(_saturation);
             Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp, effect: _grayscaleEffect);
+            _tilemap.Draw(Core.SpriteBatch);
         }
         else
         {
             Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            _tilemap.Draw(Core.SpriteBatch);
         }
 
-        _tilemap.Draw(Core.SpriteBatch);
-
-        foreach (var segment in _slime.Segments)
-        {
-            Vector2 pos = Vector2.Lerp(segment.At, segment.To, _slime.MovementProgress);
-            _slimeSprite.Sprite.Draw(Core.SpriteBatch, pos);
-        }
-
-        _batSprite.Sprite.Draw(Core.SpriteBatch, _batTransform.Position);
+        // Draw ECS entities (RenderSystem + SlimeRenderSystem)
+        base.Draw(gameTime);
 
         Core.SpriteBatch.End();
+
+        // Draw UI
         _ui.Draw();
     }
 }

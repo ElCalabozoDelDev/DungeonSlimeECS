@@ -7,19 +7,28 @@ using System.Collections.Generic;
 namespace DungeonSlime.Engine.Scenes;
 
 /// <summary>
-/// Base scene providing a reusable ECS world and a simple system update loop.
+/// Base scene providing a reusable ECS world and simple system loops for update and draw.
 /// </summary>
 public abstract class EcsSceneBase : Scene
 {
     protected EntityManager World { get; private set; } = new EntityManager();
     private readonly List<IEcsSystem> _systems = new();
+    private readonly List<IRenderSystem> _renderSystems = new();
 
     /// <summary>
-    /// Registers a system to be updated each frame in insertion order.
+    /// Registers an update system to be updated each frame in insertion order.
     /// </summary>
     protected void RegisterSystem(IEcsSystem system)
     {
         _systems.Add(system);
+    }
+
+    /// <summary>
+    /// Registers a render system to be drawn each frame in insertion order.
+    /// </summary>
+    protected void RegisterRenderSystem(IRenderSystem system)
+    {
+        _renderSystems.Add(system);
     }
 
     /// <summary>
@@ -29,6 +38,7 @@ public abstract class EcsSceneBase : Scene
     {
         World = new EntityManager();
         _systems.Clear();
+        _renderSystems.Clear();
     }
 
     public override void Update(GameTime gameTime)
@@ -38,6 +48,15 @@ public abstract class EcsSceneBase : Scene
         for (int i = 0; i < _systems.Count; i++)
         {
             _systems[i].Update(gameTime, World);
+        }
+    }
+
+    public override void Draw(GameTime gameTime)
+    {
+        // Do not call base.Draw here; Scene.Draw is empty by default.
+        for (int i = 0; i < _renderSystems.Count; i++)
+        {
+            _renderSystems[i].Draw(gameTime, World);
         }
     }
 }
