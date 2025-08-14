@@ -1,5 +1,4 @@
-﻿using System;
-using Gum.DataTypes;
+﻿using Gum.DataTypes;
 using Gum.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -10,7 +9,7 @@ using MonoGameGum.GueDeriving;
 using DungeonSlime.Library;
 using DungeonSlime.Library.Graphics;
 
-namespace DungeonSlime.UI;
+namespace DungeonSlime.Engine.UI;
 
 public class GameSceneUI : ContainerRuntime
 {

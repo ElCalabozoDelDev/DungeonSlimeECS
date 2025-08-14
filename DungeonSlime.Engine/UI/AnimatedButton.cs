@@ -1,5 +1,4 @@
-﻿using System;
-using Gum.DataTypes;
+﻿using Gum.DataTypes;
 using Gum.DataTypes.Variables;
 using Gum.Forms.Controls;
 using Gum.Forms.DefaultVisuals;
@@ -9,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 using MonoGameGum.GueDeriving;
 using DungeonSlime.Library.Graphics;
 
-namespace DungeonSlime.UI;
+namespace DungeonSlime.Engine.UI;
 
 /// <summary>
 /// A custom button implementation that inherits from Gum's Button class to provide

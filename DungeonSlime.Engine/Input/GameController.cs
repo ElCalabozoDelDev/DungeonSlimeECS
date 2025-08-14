@@ -1,9 +1,9 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using DungeonSlime.Library;
+﻿using DungeonSlime.Library;
 using DungeonSlime.Library.Input;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
-namespace DungeonSlime;
+namespace DungeonSlime.Engine.Input;
 
 /// <summary>
 /// Provides a game-specific input abstraction that maps physical inputs
