@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/template",
-  "author": "TuNombre",
+  "author": "FJBC",
   "name": "Dungeon Slime Game (MonoGame)",
   "shortName": "dungeonslime",
   "identity": "DungeonSlime.Template",
