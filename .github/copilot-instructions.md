@@ -17,6 +17,7 @@ Este proyecto es un juego estilo snake donde el jugador controla un slime que se
 	- `UI`: Contiene la interfaz de usuario del juego.
 - `DungeonSlime.Library/`: Contiene las bibliotecas y utilidades compartidas entre diferentes partes del proyecto.
 	- `Audio/`: Manejo de audio del juego.
+	- `Geometry/`: Clases y métodos relacionados con la geometría.
 	- `Graphics/`: Manejo de gráficos y renderizado.
 	- `Input/`: Manejo de entradas del usuario.
 	- `Scenes/`: Manejo de escenas del juego.
