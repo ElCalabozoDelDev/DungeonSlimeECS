@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 using DungeonSlime.Engine.ECS.Components;
-using DungeonSlime.Library;
+using DungeonSlime.Library.Geometry;
 
 namespace DungeonSlime.Engine.ECS.Systems;
 

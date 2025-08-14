@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 
-namespace DungeonSlime.Library;
+namespace DungeonSlime.Library.Geometry;
 
 public readonly struct Circle : IEquatable<Circle>
 {
@@ -89,8 +89,8 @@ public readonly struct Circle : IEquatable<Circle>
     /// <returns>true if the other circle intersects with this circle; otherwise, false.</returns>
     public bool Intersects(Circle other)
     {
-        int radiiSquared = (this.Radius + other.Radius) * (this.Radius + other.Radius);
-        float distanceSquared = Vector2.DistanceSquared(this.Location.ToVector2(), other.Location.ToVector2());
+        int radiiSquared = (Radius + other.Radius) * (Radius + other.Radius);
+        float distanceSquared = Vector2.DistanceSquared(Location.ToVector2(), other.Location.ToVector2());
         return distanceSquared < radiiSquared;
     }
 
@@ -106,9 +106,9 @@ public readonly struct Circle : IEquatable<Circle>
     /// </summary>
     /// <param name="other">The circle to compare with this circle.</param>
     /// <returns>true if this circle and the specified circle are equal; otherwise, false.</returns>
-    public readonly bool Equals(Circle other) => this.X == other.X &&
-                                                    this.Y == other.Y &&
-                                                    this.Radius == other.Radius;
+    public readonly bool Equals(Circle other) => X == other.X &&
+                                                    Y == other.Y &&
+                                                    Radius == other.Radius;
 
     /// <summary>
     /// Returns the hash code for this circle.

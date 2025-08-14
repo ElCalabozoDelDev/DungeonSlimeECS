@@ -6,12 +6,12 @@ using DungeonSlime.Library;
 
 namespace DungeonSlime;
 
-public class Game1 : Core
+public class Startup : Core
 {
     // The background theme song.
     private Song _themeSong;
 
-    public Game1() : base("Dungeon Slime", 1280, 720, false)
+    public Startup() : base("Dungeon Slime", 1280, 720, false)
     {
 
     }

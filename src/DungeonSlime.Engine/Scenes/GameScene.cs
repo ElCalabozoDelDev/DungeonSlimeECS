@@ -10,6 +10,7 @@ using DungeonSlime.Engine.ECS;
 using DungeonSlime.Engine.ECS.Components;
 using DungeonSlime.Engine.ECS.Systems;
 using DungeonSlime.Engine.Models;
+using DungeonSlime.Library.Geometry;
 
 namespace DungeonSlime.Engine.Scenes;
 
