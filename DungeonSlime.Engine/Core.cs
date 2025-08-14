@@ -7,7 +7,7 @@ using DungeonSlime.Library.Audio;
 using DungeonSlime.Library.Input;
 using DungeonSlime.Library.Scenes;
 
-namespace DungeonSlime.Library;
+namespace DungeonSlime.Engine;
 
 public class Core : Game
 {
