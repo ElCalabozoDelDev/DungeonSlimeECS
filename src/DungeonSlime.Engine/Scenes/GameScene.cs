@@ -75,23 +75,13 @@ public class GameScene : EcsSceneBase
 
         Core.ExitOnEscape = false;
 
-        _roomBounds = Core.GraphicsDevice.PresentationParameters.Bounds;
-
-        GumService.Default.Root.Children.Clear();
         InitializeUI();
 
-        // Reset world and systems for a fresh game
-        ResetWorld();
         _slimeSystem = new SlimeSystem();
         _batSystem = new BatSystem();
         _collectSystem = new CollectSystem();
         _renderSystem = new RenderSystem();
         _slimeRenderSystem = new SlimeRenderSystem();
-        RegisterSystem(_slimeSystem);
-        RegisterSystem(_batSystem);
-        RegisterSystem(_collectSystem);
-        RegisterRenderSystem(_renderSystem);
-        RegisterRenderSystem(_slimeRenderSystem);
 
         InitializeNewGame();
     }
