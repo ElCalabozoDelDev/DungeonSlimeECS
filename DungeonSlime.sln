@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementos de la solución",
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		.github\copilot-instructions.md = .github\copilot-instructions.md
+		README.md = README.md
 		.template.config\template.json = .template.config\template.json
 	EndProjectSection
 EndProject

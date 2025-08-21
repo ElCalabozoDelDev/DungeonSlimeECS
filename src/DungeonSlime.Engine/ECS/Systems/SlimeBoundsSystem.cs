@@ -46,7 +46,7 @@ public class SlimeBoundsSystem : IUpdateSystem
             circleX - radius < bounds.Left ||
             circleX + radius > bounds.Right)
         {
-            state.IsGameOver = true;
+            state.State = Scenes.GameState.GameOver;
         }
     }
 }

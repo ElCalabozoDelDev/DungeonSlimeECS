@@ -4,7 +4,7 @@ using DungeonSlime.Engine.ECS.Components;
 namespace DungeonSlime.Engine.ECS.Systems;
 
 /// <summary>
-/// Converts slime self-collision detection into a shared game over signal via GameStateComponent.
+/// Converts slime self-collision detection into a shared game state update via GameStateComponent.
 /// Keeps scene logic decoupled from ECS events.
 /// </summary>
 public class SlimeBodyCollisionSystem : IUpdateSystem
@@ -38,7 +38,7 @@ public class SlimeBodyCollisionSystem : IUpdateSystem
         if (slime.BodyCollisionDetected)
         {
             slime.BodyCollisionDetected = false;
-            gameState.IsGameOver = true;
+            gameState.State = Scenes.GameState.GameOver;
         }
     }
 }

@@ -10,19 +10,11 @@ using DungeonSlime.Engine.ECS;
 using DungeonSlime.Engine.ECS.Components;
 using DungeonSlime.Engine.ECS.Systems;
 using DungeonSlime.Engine.Models;
-using DungeonSlime.Library.Geometry;
 
 namespace DungeonSlime.Engine.Scenes;
 
 public class GameScene : EcsSceneBase
 {
-    private enum GameState
-    {
-        Playing,
-        Paused,
-        GameOver
-    }
-
     // Inicializa los campos de sistema ECS como nullables para evitar la advertencia CS8618.
     // Se garantiza su inicialización en Initialize().
     private SlimeSystem? _slimeSystem;
@@ -64,8 +56,6 @@ public class GameScene : EcsSceneBase
     private SoundEffect _collectSoundEffect = null!;
 
     private GameSceneUI? _ui;
-
-    private GameState _state;
 
     // The grayscale shader effect.
     private Effect? _grayscaleEffect;
@@ -130,7 +120,7 @@ public class GameScene : EcsSceneBase
 
     private void OnResumeButtonClicked(object? sender, EventArgs args)
     {
-        _state = GameState.Playing;
+        _gameStateComponent.State = GameState.Playing;
     }
 
     private void OnRetryButtonClicked(object? sender, EventArgs args)
@@ -226,7 +216,7 @@ public class GameScene : EcsSceneBase
 
         BatSystem.RandomizeVelocity(_bat);
 
-        _state = GameState.Playing;
+        _gameStateComponent.State = GameState.Playing;
     }
 
     public override void LoadContent()
@@ -253,10 +243,10 @@ public class GameScene : EcsSceneBase
         // Update UI always
         _ui?.Update(gameTime);
 
-        if (_state != GameState.Playing)
+        if (_gameStateComponent.State != GameState.Playing)
         {
             _saturation = Math.Max(0.0f, _saturation - FADE_SPEED);
-            if (_state == GameState.GameOver)
+            if (_gameStateComponent.State == GameState.GameOver)
                 return;
         }
 
@@ -265,7 +255,7 @@ public class GameScene : EcsSceneBase
             TogglePause();
         }
 
-        if (_state == GameState.Paused)
+        if (_gameStateComponent.State == GameState.Paused)
         {
             return;
         }
@@ -279,15 +269,15 @@ public class GameScene : EcsSceneBase
 
     private void TogglePause()
     {
-        if (_state == GameState.Paused)
+        if (_gameStateComponent.State == GameState.Paused)
         {
             _ui?.HidePausePanel();
-            _state = GameState.Playing;
+            _gameStateComponent.State = GameState.Playing;
         }
         else
         {
             _ui?.ShowPausePanel();
-            _state = GameState.Paused;
+            _gameStateComponent.State = GameState.Paused;
             _saturation = 1.0f;
         }
     }
@@ -295,13 +285,13 @@ public class GameScene : EcsSceneBase
     private void GameOver()
     {
         _ui?.ShowGameOverPanel();
-        _state = GameState.GameOver;
+        _gameStateComponent.State = GameState.GameOver;
         _saturation = 1.0f;
     }
 
     private void BeginSpriteBatchForState()
     {
-        if (_state != GameState.Playing)
+        if (_gameStateComponent.State != GameState.Playing)
         {
             if (_grayscaleEffect != null)
             {
