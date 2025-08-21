@@ -39,7 +39,6 @@ The template will generate a ready-to-run MonoGame project with ECS architecture
 
 * **Inspired by:** MonoGame official tutorial [Building 2D Games](https://docs.monogame.net/articles/tutorials/building_2d_games/)
 * **Assets:** Some graphics and sounds are adapted from the tutorial. Please review the original tutorial for usage rights.
-* **Author:** FJBC
 
 ---
 
@@ -48,3 +47,5 @@ The template will generate a ready-to-run MonoGame project with ECS architecture
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
 
 > "Make it yours and use it freely. Build amazing games with ECS architecture!"
+
+**Author:** FJBC
