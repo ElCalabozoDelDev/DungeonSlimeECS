@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework;
 using DungeonSlime.Library.Scenes;
 using DungeonSlime.Engine.ECS;
-using DungeonSlime.Engine.ECS.Systems;
 using System.Collections.Generic;
+using DungeonSlime.Engine.Contracts;
 
 namespace DungeonSlime.Engine.Scenes;
 

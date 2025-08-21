@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using DungeonSlime.Engine.ECS.Components;
 using DungeonSlime.Library.Geometry;
+using DungeonSlime.Engine.Contracts;
 
 namespace DungeonSlime.Engine.ECS.Systems;
 
