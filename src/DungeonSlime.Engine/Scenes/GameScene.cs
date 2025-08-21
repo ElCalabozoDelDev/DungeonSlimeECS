@@ -32,6 +32,7 @@ public class GameScene : EcsSceneBase
     private SlimeRenderSystem? _slimeRenderSystem;
     private SlimeBoundsSystem? _slimeBoundsSystem; // bounds detection
     private BatPlacementSystem? _batPlacementSystem; // initial placement system
+    private UiNotificationSystem? _uiNotificationSystem; // UI events + SFX
 
     // Plan (pseudocode):
     // - Suppress CS8618 for fields assigned in InitializeNewGame/LoadContent.
@@ -51,6 +52,7 @@ public class GameScene : EcsSceneBase
     private Entity _roomEntity = null!;
     private Entity _scoreEntity = null!;
     private Entity _gameStateEntity = null!;
+    private Entity _audioEntity = null!;
     private ScoreComponent _scoreComponent = null!; // cache to avoid per-frame world iteration
     private GameStateComponent _gameStateComponent = null!;
 
@@ -59,9 +61,6 @@ public class GameScene : EcsSceneBase
 
     // The sound effect to play when the slime eats a bat.
     private SoundEffect _collectSoundEffect = null!;
-
-    // Tracks the players score.
-    private int _score;
 
     private GameSceneUI? _ui;
 
@@ -99,6 +98,7 @@ public class GameScene : EcsSceneBase
         _slimeRenderSystem = new SlimeRenderSystem();
         _slimeBoundsSystem = new SlimeBoundsSystem();
         _batPlacementSystem = new BatPlacementSystem();
+        _uiNotificationSystem = new UiNotificationSystem();
 
         InitializeNewGame();
     }
@@ -110,6 +110,20 @@ public class GameScene : EcsSceneBase
         _ui.ResumeButtonClick += OnResumeButtonClicked;
         _ui.RetryButtonClick += OnRetryButtonClicked;
         _ui.QuitButtonClick += OnQuitButtonClicked;
+
+        // Subscribe to UI events from systems
+        UiEvents.ScoreChanged += HandleScoreChanged;
+        UiEvents.GameOver += HandleGameOverEvent;
+    }
+
+    private void HandleScoreChanged(int score)
+    {
+        _ui?.UpdateScoreText(score);
+    }
+
+    private void HandleGameOverEvent()
+    {
+        GameOver();
     }
 
     private void OnResumeButtonClicked(object? sender, EventArgs args)
@@ -134,6 +148,7 @@ public class GameScene : EcsSceneBase
         if (_collectSystem is not null) RegisterSystem(_collectSystem);
         if (_slimeBoundsSystem is not null) RegisterSystem(_slimeBoundsSystem);
         if (_batPlacementSystem is not null) RegisterSystem(_batPlacementSystem);
+        if (_uiNotificationSystem is not null) RegisterSystem(_uiNotificationSystem);
     }
 
     private void RegisterAllRenderSystems()
@@ -164,6 +179,10 @@ public class GameScene : EcsSceneBase
         _gameStateEntity = World.Create();
         _gameStateComponent = new GameStateComponent();
         _gameStateEntity.Add(_gameStateComponent);
+
+        // Create audio entity with references to SFX for systems
+        _audioEntity = World.Create();
+        _audioEntity.Add(new GameAudioComponent { CollectSoundEffect = _collectSoundEffect });
 
         // Center tile position for slime
         Vector2 slimePos = new Vector2(
@@ -204,7 +223,6 @@ public class GameScene : EcsSceneBase
 
         BatSystem.RandomizeVelocity(_bat);
 
-        _score = 0;
         _state = GameState.Playing;
     }
 
@@ -260,44 +278,8 @@ public class GameScene : EcsSceneBase
             return;
         }
 
-        // If a system flagged game over (e.g., bounds system), handle it once
-        if (_gameStateComponent.IsGameOver)
-        {
-            _gameStateComponent.IsGameOver = false;
-            GameOver();
-            return;
-        }
-
-        // Sync score stored in ECS to UI value
-        SyncScoreToUi();
-
         // Room bounds are managed by component; refresh local cache if scene resized
         _roomBounds = _roomEntity.Get<RoomBoundsComponent>().Bounds;
-    }
-
-    private void SyncScoreToUi()
-    {
-        // Use cached component instead of iterating all entities
-        if (_scoreComponent is null)
-            return;
-
-        if (_score != _scoreComponent.Score)
-        {
-            _score = _scoreComponent.Score;
-            _ui?.UpdateScoreText(_score);
-            Core.Audio.PlaySoundEffect(_collectSoundEffect);
-        }
-    }
-
-    private Circle GetSlimeBounds()
-    {
-        var head = _slime.Segments[0];
-        Vector2 pos = Vector2.Lerp(head.At, head.To, _slime.MovementProgress);
-        return new Circle(
-            (int)(pos.X + _slimeSprite.Sprite.Width * 0.5f),
-            (int)(pos.Y + _slimeSprite.Sprite.Height * 0.5f),
-            (int)(_slimeSprite.Sprite.Width * 0.5f)
-        );
     }
 
     private void TogglePause()
