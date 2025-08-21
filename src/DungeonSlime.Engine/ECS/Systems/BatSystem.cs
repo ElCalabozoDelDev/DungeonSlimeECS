@@ -8,7 +8,7 @@ namespace DungeonSlime.Engine.ECS.Systems;
 /// <summary>
 /// Updates bat movement and handles wall bounces.
 /// </summary>
-public class BatSystem : IEcsSystem
+public class BatSystem : IUpdateSystem
 {
     public void Update(GameTime gameTime, EntityManager world)
     {

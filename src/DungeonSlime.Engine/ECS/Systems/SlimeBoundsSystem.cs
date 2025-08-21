@@ -6,7 +6,7 @@ namespace DungeonSlime.Engine.ECS.Systems;
 /// <summary>
 /// Detects when the slime goes out of the room bounds and flags game over via GameStateComponent.
 /// </summary>
-public class SlimeBoundsSystem : IEcsSystem
+public class SlimeBoundsSystem : IUpdateSystem
 {
     public void Update(GameTime gameTime, EntityManager world)
     {

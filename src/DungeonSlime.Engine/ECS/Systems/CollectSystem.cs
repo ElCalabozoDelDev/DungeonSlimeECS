@@ -7,7 +7,7 @@ namespace DungeonSlime.Engine.ECS.Systems;
 /// <summary>
 /// Handles slime vs bat collection: relocate bat, randomize velocity, grow slime, update score and play SFX.
 /// </summary>
-public class CollectSystem : IEcsSystem
+public class CollectSystem : IUpdateSystem
 {
     public void Update(GameTime gameTime, EntityManager world)
     {

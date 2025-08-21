@@ -33,6 +33,7 @@ public class GameScene : EcsSceneBase
     private SlimeBoundsSystem? _slimeBoundsSystem; // bounds detection
     private BatPlacementSystem? _batPlacementSystem; // initial placement system
     private UiNotificationSystem? _uiNotificationSystem; // UI events + SFX
+    private SlimeBodyCollisionSystem? _slimeBodyCollisionSystem;
 
     // Plan (pseudocode):
     // - Suppress CS8618 for fields assigned in InitializeNewGame/LoadContent.
@@ -99,6 +100,7 @@ public class GameScene : EcsSceneBase
         _slimeBoundsSystem = new SlimeBoundsSystem();
         _batPlacementSystem = new BatPlacementSystem();
         _uiNotificationSystem = new UiNotificationSystem();
+        _slimeBodyCollisionSystem = new SlimeBodyCollisionSystem();
 
         InitializeNewGame();
     }
@@ -149,6 +151,7 @@ public class GameScene : EcsSceneBase
         if (_slimeBoundsSystem is not null) RegisterSystem(_slimeBoundsSystem);
         if (_batPlacementSystem is not null) RegisterSystem(_batPlacementSystem);
         if (_uiNotificationSystem is not null) RegisterSystem(_uiNotificationSystem);
+        if (_slimeBodyCollisionSystem is not null) RegisterSystem(_slimeBodyCollisionSystem);
     }
 
     private void RegisterAllRenderSystems()
@@ -269,14 +272,6 @@ public class GameScene : EcsSceneBase
 
         // Run base ECS loop (updates registered systems)
         base.Update(gameTime);
-
-        // If slime collided with its body, trigger game over and reset flag
-        if (_slime.BodyCollisionDetected)
-        {
-            _slime.BodyCollisionDetected = false;
-            GameOver();
-            return;
-        }
 
         // Room bounds are managed by component; refresh local cache if scene resized
         _roomBounds = _roomEntity.Get<RoomBoundsComponent>().Bounds;

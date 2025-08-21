@@ -12,13 +12,13 @@ namespace DungeonSlime.Engine.Scenes;
 public abstract class EcsSceneBase : Scene
 {
     protected EntityManager World { get; private set; } = new EntityManager();
-    private readonly List<IEcsSystem> _systems = new();
+    private readonly List<IUpdateSystem> _systems = new();
     private readonly List<IRenderSystem> _renderSystems = new();
 
     /// <summary>
     /// Registers an update system to be updated each frame in insertion order.
     /// </summary>
-    protected void RegisterSystem(IEcsSystem system)
+    protected void RegisterSystem(IUpdateSystem system)
     {
         _systems.Add(system);
     }

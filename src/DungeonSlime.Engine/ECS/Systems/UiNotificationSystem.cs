@@ -9,7 +9,7 @@ namespace DungeonSlime.Engine.ECS.Systems;
 /// Observes score changes and game over flags to update UI via UiEvents and play SFX via GameAudioComponent.
 /// Keeps scene decoupled from ECS logic.
 /// </summary>
-public class UiNotificationSystem : IEcsSystem
+public class UiNotificationSystem : IUpdateSystem
 {
     private int _lastScore;
 

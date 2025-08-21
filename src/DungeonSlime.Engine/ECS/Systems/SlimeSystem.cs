@@ -8,7 +8,7 @@ namespace DungeonSlime.Engine.ECS.Systems;
 /// <summary>
 /// Handles input, movement tick, growth and self-collision for the slime using ECS components.
 /// </summary>
-public class SlimeSystem : IEcsSystem
+public class SlimeSystem : IUpdateSystem
 {
     private static readonly TimeSpan s_movementTime = TimeSpan.FromMilliseconds(200);
 

@@ -7,7 +7,7 @@ namespace DungeonSlime.Engine.ECS.Systems;
 /// <summary>
 /// Places the bat away from the slime on start, then disables itself by clearing the flag on the BatComponent.
 /// </summary>
-public class BatPlacementSystem : IEcsSystem
+public class BatPlacementSystem : IUpdateSystem
 {
     public void Update(GameTime gameTime, EntityManager world)
     {
