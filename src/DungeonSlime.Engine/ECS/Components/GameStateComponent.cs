@@ -6,5 +6,5 @@ namespace DungeonSlime.Engine.ECS.Components;
 /// </summary>
 public class GameStateComponent
 {
-    public DungeonSlime.Engine.Scenes.GameState State { get; set; } = DungeonSlime.Engine.Scenes.GameState.Playing;
+    public GameState State { get; set; } = GameState.Playing;
 }

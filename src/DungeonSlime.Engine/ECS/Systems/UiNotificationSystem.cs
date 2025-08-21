@@ -12,7 +12,7 @@ namespace DungeonSlime.Engine.ECS.Systems;
 public class UiNotificationSystem : IUpdateSystem
 {
     private int _lastScore;
-    private Scenes.GameState _lastGameState = Scenes.GameState.Playing;
+    private GameState _lastGameState = GameState.Playing;
 
     public void Update(GameTime gameTime, EntityManager world)
     {
@@ -43,7 +43,7 @@ public class UiNotificationSystem : IUpdateSystem
             var current = state.State;
             _lastGameState = current;
 
-            if (current == Scenes.GameState.GameOver)
+            if (current == GameState.GameOver)
             {
                 UiEvents.RaiseGameOver();
             }

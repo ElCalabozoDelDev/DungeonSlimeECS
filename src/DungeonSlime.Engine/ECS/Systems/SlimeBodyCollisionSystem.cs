@@ -38,7 +38,7 @@ public class SlimeBodyCollisionSystem : IUpdateSystem
         if (slime.BodyCollisionDetected)
         {
             slime.BodyCollisionDetected = false;
-            gameState.State = Scenes.GameState.GameOver;
+            gameState.State = GameState.GameOver;
         }
     }
 }

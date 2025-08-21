@@ -1,4 +1,4 @@
-namespace DungeonSlime.Engine.Scenes;
+namespace DungeonSlime.Engine.ECS;
 
 /// <summary>
 /// High-level game state values used by GameScene and related systems.
