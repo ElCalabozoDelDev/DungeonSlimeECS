@@ -30,6 +30,7 @@ public class GameScene : EcsSceneBase
     private CollectSystem? _collectSystem;
     private RenderSystem? _renderSystem;
     private SlimeRenderSystem? _slimeRenderSystem;
+    private SlimeBoundsSystem? _slimeBoundsSystem; // new system to decouple bounds checking
 
     // Plan (pseudocode):
     // - Suppress CS8618 for fields assigned in InitializeNewGame/LoadContent.
@@ -48,6 +49,9 @@ public class GameScene : EcsSceneBase
 
     private Entity _roomEntity = null!;
     private Entity _scoreEntity = null!;
+    private Entity _gameStateEntity = null!;
+    private ScoreComponent _scoreComponent = null!; // cache to avoid per-frame world iteration
+    private GameStateComponent _gameStateComponent = null!;
 
     // Defines the tilemap to draw.
     private Tilemap _tilemap = null!;
@@ -64,6 +68,7 @@ public class GameScene : EcsSceneBase
 
     // The grayscale shader effect.
     private Effect? _grayscaleEffect;
+    private EffectParameter? _grayscaleSaturationParam; // cached parameter lookup
 
     // The amount of saturation to provide the grayscale shader effect.
     private float _saturation = 1.0f;
@@ -91,6 +96,7 @@ public class GameScene : EcsSceneBase
         _collectSystem = new CollectSystem();
         _renderSystem = new RenderSystem();
         _slimeRenderSystem = new SlimeRenderSystem();
+        _slimeBoundsSystem = new SlimeBoundsSystem();
 
         InitializeNewGame();
     }
@@ -119,21 +125,26 @@ public class GameScene : EcsSceneBase
         Core.ChangeScene(new TitleScene());
     }
 
+    private void RegisterAllSystems()
+    {
+        if (_slimeSystem is not null) RegisterSystem(_slimeSystem);
+        if (_batSystem is not null) RegisterSystem(_batSystem);
+        if (_collectSystem is not null) RegisterSystem(_collectSystem);
+        if (_slimeBoundsSystem is not null) RegisterSystem(_slimeBoundsSystem);
+    }
+
+    private void RegisterAllRenderSystems()
+    {
+        if (_renderSystem is not null) RegisterRenderSystem(_renderSystem);
+        if (_slimeRenderSystem is not null) RegisterRenderSystem(_slimeRenderSystem);
+    }
+
     private void InitializeNewGame()
     {
         // Reset ECS world and re-register systems to ensure a clean state
         ResetWorld();
-        if (_slimeSystem is not null)
-            RegisterSystem(_slimeSystem);
-        if (_batSystem is not null)
-            RegisterSystem(_batSystem);
-        if (_collectSystem is not null)
-            RegisterSystem(_collectSystem);
-        if (_renderSystem is not null)
-            RegisterRenderSystem(_renderSystem);
-        if (_slimeRenderSystem is not null)
-            RegisterRenderSystem(_slimeRenderSystem);
-
+        RegisterAllSystems();
+        RegisterAllRenderSystems();
 
         // Create room bounds entity (deflated to inside of dungeon)
         _roomBounds = Core.GraphicsDevice.PresentationParameters.Bounds;
@@ -141,9 +152,15 @@ public class GameScene : EcsSceneBase
         _roomEntity = World.Create();
         _roomEntity.Add(new RoomBoundsComponent { Bounds = _roomBounds });
 
-        // Create score holder entity
+        // Create score holder entity and cache its component
         _scoreEntity = World.Create();
-        _scoreEntity.Add(new ScoreComponent { Score = 0 });
+        _scoreComponent = new ScoreComponent { Score = 0 };
+        _scoreEntity.Add(_scoreComponent);
+
+        // Create shared game state entity
+        _gameStateEntity = World.Create();
+        _gameStateComponent = new GameStateComponent();
+        _gameStateEntity.Add(_gameStateComponent);
 
         // Center tile position for slime
         Vector2 slimePos = new Vector2(
@@ -156,6 +173,9 @@ public class GameScene : EcsSceneBase
         _slimeTransform = new TransformComponent { Position = slimePos, Direction = Vector2.UnitX };
         if (_slimeAnim is null || _batAnim is null)
             throw new InvalidOperationException("Animated sprites must be loaded before initializing a new game.");
+
+        // Ensure the slime sprite component is created
+        _slimeSprite = new SpriteComponent { Sprite = _slimeAnim };
 
         _slime = new SlimeComponent
         {
@@ -202,6 +222,7 @@ public class GameScene : EcsSceneBase
         _bounceSfx = Content.Load<SoundEffect>("audio/bounce");
         _collectSoundEffect = Content.Load<SoundEffect>("audio/collect");
         _grayscaleEffect = Content.Load<Effect>("effects/grayscaleEffect");
+        _grayscaleSaturationParam = _grayscaleEffect?.Parameters["Saturation"]; // cache param for fast access
     }
 
     public override void Update(GameTime gameTime)
@@ -237,36 +258,32 @@ public class GameScene : EcsSceneBase
             return;
         }
 
-        // Sync score stored in ECS to UI value
-        SyncScoreToUi();
-
-        // Slime vs room bounds (game over)
-        var slimeBounds = GetSlimeBounds();
-        _roomBounds = _roomEntity.Get<RoomBoundsComponent>().Bounds; // refresh local cache if scene resized
-        if (slimeBounds.Top < _roomBounds.Top ||
-            slimeBounds.Bottom > _roomBounds.Bottom ||
-            slimeBounds.Left < _roomBounds.Left ||
-            slimeBounds.Right > _roomBounds.Right)
+        // If a system flagged game over (e.g., bounds system), handle it once
+        if (_gameStateComponent.IsGameOver)
         {
+            _gameStateComponent.IsGameOver = false;
             GameOver();
             return;
         }
+
+        // Sync score stored in ECS to UI value
+        SyncScoreToUi();
+
+        // Room bounds are managed by component; refresh local cache if scene resized
+        _roomBounds = _roomEntity.Get<RoomBoundsComponent>().Bounds;
     }
 
     private void SyncScoreToUi()
     {
-        foreach (var e in World.Entities)
+        // Use cached component instead of iterating all entities
+        if (_scoreComponent is null)
+            return;
+
+        if (_score != _scoreComponent.Score)
         {
-            if (e.TryGet(out ScoreComponent scoreComp))
-            {
-                if (_score != scoreComp.Score)
-                {
-                    _score = scoreComp.Score;
-                    _ui?.UpdateScoreText(_score);
-                    Core.Audio.PlaySoundEffect(_collectSoundEffect);
-                }
-                break;
-            }
+            _score = _scoreComponent.Score;
+            _ui?.UpdateScoreText(_score);
+            Core.Audio.PlaySoundEffect(_collectSoundEffect);
         }
     }
 
@@ -330,28 +347,32 @@ public class GameScene : EcsSceneBase
         _saturation = 1.0f;
     }
 
-    public override void Draw(GameTime gameTime)
+    private void BeginSpriteBatchForState()
     {
-        Core.GraphicsDevice.Clear(Color.CornflowerBlue);
-
         if (_state != GameState.Playing)
         {
             if (_grayscaleEffect != null)
             {
-                _grayscaleEffect.Parameters["Saturation"].SetValue(_saturation);
+                _grayscaleSaturationParam?.SetValue(_saturation);
                 Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp, effect: _grayscaleEffect);
             }
             else
             {
                 Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
             }
-            _tilemap.Draw(Core.SpriteBatch);
         }
         else
         {
             Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            _tilemap.Draw(Core.SpriteBatch);
         }
+    }
+
+    public override void Draw(GameTime gameTime)
+    {
+        Core.GraphicsDevice.Clear(Color.CornflowerBlue);
+
+        BeginSpriteBatchForState();
+        _tilemap.Draw(Core.SpriteBatch);
 
         // Draw ECS entities (RenderSystem + SlimeRenderSystem)
         base.Draw(gameTime);
