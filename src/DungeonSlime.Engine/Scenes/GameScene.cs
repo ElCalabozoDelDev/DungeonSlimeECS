@@ -30,7 +30,8 @@ public class GameScene : EcsSceneBase
     private CollectSystem? _collectSystem;
     private RenderSystem? _renderSystem;
     private SlimeRenderSystem? _slimeRenderSystem;
-    private SlimeBoundsSystem? _slimeBoundsSystem; // new system to decouple bounds checking
+    private SlimeBoundsSystem? _slimeBoundsSystem; // bounds detection
+    private BatPlacementSystem? _batPlacementSystem; // initial placement system
 
     // Plan (pseudocode):
     // - Suppress CS8618 for fields assigned in InitializeNewGame/LoadContent.
@@ -97,6 +98,7 @@ public class GameScene : EcsSceneBase
         _renderSystem = new RenderSystem();
         _slimeRenderSystem = new SlimeRenderSystem();
         _slimeBoundsSystem = new SlimeBoundsSystem();
+        _batPlacementSystem = new BatPlacementSystem();
 
         InitializeNewGame();
     }
@@ -131,6 +133,7 @@ public class GameScene : EcsSceneBase
         if (_batSystem is not null) RegisterSystem(_batSystem);
         if (_collectSystem is not null) RegisterSystem(_collectSystem);
         if (_slimeBoundsSystem is not null) RegisterSystem(_slimeBoundsSystem);
+        if (_batPlacementSystem is not null) RegisterSystem(_batPlacementSystem);
     }
 
     private void RegisterAllRenderSystems()
@@ -194,13 +197,12 @@ public class GameScene : EcsSceneBase
         _batEntity = World.Create();
         _batTransform = new TransformComponent { Position = Vector2.Zero };
         _batSprite = new SpriteComponent { Sprite = _batAnim };
-        _bat = new BatComponent { MovementSpeed = 5.0f, BounceSoundEffect = _bounceSfx };
+        _bat = new BatComponent { MovementSpeed = 5.0f, BounceSoundEffect = _bounceSfx, NeedsInitialPlacement = true };
         _batEntity.Add(_batTransform);
         _batEntity.Add(_batSprite);
         _batEntity.Add(_bat);
 
         BatSystem.RandomizeVelocity(_bat);
-        PositionBatAwayFromSlime();
 
         _score = 0;
         _state = GameState.Playing;
@@ -296,33 +298,6 @@ public class GameScene : EcsSceneBase
             (int)(pos.Y + _slimeSprite.Sprite.Height * 0.5f),
             (int)(_slimeSprite.Sprite.Width * 0.5f)
         );
-    }
-
-    private void PositionBatAwayFromSlime()
-    {
-        var slimeBounds = GetSlimeBounds();
-        var r = _roomBounds;
-        float roomCenterX = r.X + r.Width * 0.5f;
-        float roomCenterY = r.Y + r.Height * 0.5f;
-        Vector2 roomCenter = new Vector2(roomCenterX, roomCenterY);
-        Vector2 slimeCenter = new Vector2(slimeBounds.X, slimeBounds.Y);
-        Vector2 centerToSlime = slimeCenter - roomCenter;
-        var batBoundsRadius = (int)(_batSprite.Sprite.Width * 0.25f);
-        int padding = batBoundsRadius * 2;
-
-        Vector2 newBatPosition = Vector2.Zero;
-        if (Math.Abs(centerToSlime.X) > Math.Abs(centerToSlime.Y))
-        {
-            newBatPosition.Y = Random.Shared.Next(r.Top + padding, r.Bottom - padding);
-            newBatPosition.X = centerToSlime.X > 0 ? r.Left + padding : r.Right - padding * 2;
-        }
-        else
-        {
-            newBatPosition.X = Random.Shared.Next(r.Left + padding, r.Right - padding);
-            newBatPosition.Y = centerToSlime.Y > 0 ? r.Top + padding : r.Bottom - padding * 2;
-        }
-
-        _batTransform.Position = newBatPosition;
     }
 
     private void TogglePause()

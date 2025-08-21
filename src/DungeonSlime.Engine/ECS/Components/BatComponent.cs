@@ -19,4 +19,10 @@ public class BatComponent
     /// The sound effect to play when the bat bounces off a wall.
     /// </summary>
     public SoundEffect? BounceSoundEffect { get; set; }
+
+    /// <summary>
+    /// Indicates the bat needs an initial placement away from the slime.
+    /// Systems should set this to false after placing it.
+    /// </summary>
+    public bool NeedsInitialPlacement { get; set; } = true;
 }
