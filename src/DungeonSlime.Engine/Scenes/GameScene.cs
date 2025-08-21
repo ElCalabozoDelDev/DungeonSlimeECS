@@ -23,42 +23,47 @@ public class GameScene : EcsSceneBase
         GameOver
     }
 
-    // Systems
-    private SlimeSystem _slimeSystem;
-    private BatSystem _batSystem;
-    private CollectSystem _collectSystem;
-    private RenderSystem _renderSystem;
-    private SlimeRenderSystem _slimeRenderSystem;
+    // Inicializa los campos de sistema ECS como nullables para evitar la advertencia CS8618.
+    // Se garantiza su inicialización en Initialize().
+    private SlimeSystem? _slimeSystem;
+    private BatSystem? _batSystem;
+    private CollectSystem? _collectSystem;
+    private RenderSystem? _renderSystem;
+    private SlimeRenderSystem? _slimeRenderSystem;
 
-    // ECS entities/components
-    private Entity _slimeEntity;
-    private TransformComponent _slimeTransform;
-    private SpriteComponent _slimeSprite;
-    private SlimeComponent _slime;
+    // Plan (pseudocode):
+    // - Suppress CS8618 for fields assigned in InitializeNewGame/LoadContent.
+    // - Use null-forgiving operator (= null!) to indicate late initialization.
+    // - Do not change runtime behavior.
 
-    private Entity _batEntity;
-    private TransformComponent _batTransform;
-    private SpriteComponent _batSprite;
-    private BatComponent _bat;
+    private Entity _slimeEntity = null!;
+    private TransformComponent _slimeTransform = null!;
+    private SpriteComponent _slimeSprite = null!;
+    private SlimeComponent _slime = null!;
 
-    private Entity _roomEntity;
-    private Entity _scoreEntity;
+    private Entity _batEntity = null!;
+    private TransformComponent _batTransform = null!;
+    private SpriteComponent _batSprite = null!;
+    private BatComponent _bat = null!;
+
+    private Entity _roomEntity = null!;
+    private Entity _scoreEntity = null!;
 
     // Defines the tilemap to draw.
-    private Tilemap _tilemap;
+    private Tilemap _tilemap = null!;
 
     // The sound effect to play when the slime eats a bat.
-    private SoundEffect _collectSoundEffect;
+    private SoundEffect _collectSoundEffect = null!;
 
     // Tracks the players score.
     private int _score;
 
-    private GameSceneUI _ui;
+    private GameSceneUI? _ui;
 
     private GameState _state;
 
     // The grayscale shader effect.
-    private Effect _grayscaleEffect;
+    private Effect? _grayscaleEffect;
 
     // The amount of saturation to provide the grayscale shader effect.
     private float _saturation = 1.0f;
@@ -68,6 +73,10 @@ public class GameScene : EcsSceneBase
 
     private Rectangle _roomBounds;
 
+    // Local cached assets created in LoadContent
+    private AnimatedSprite? _slimeAnim;
+    private AnimatedSprite? _batAnim;
+    private SoundEffect? _bounceSfx;
     public override void Initialize()
     {
         // LoadContent is called during base.Initialize().
@@ -95,17 +104,17 @@ public class GameScene : EcsSceneBase
         _ui.QuitButtonClick += OnQuitButtonClicked;
     }
 
-    private void OnResumeButtonClicked(object sender, EventArgs args)
+    private void OnResumeButtonClicked(object? sender, EventArgs args)
     {
         _state = GameState.Playing;
     }
 
-    private void OnRetryButtonClicked(object sender, EventArgs args)
+    private void OnRetryButtonClicked(object? sender, EventArgs args)
     {
         InitializeNewGame();
     }
 
-    private void OnQuitButtonClicked(object sender, EventArgs args)
+    private void OnQuitButtonClicked(object? sender, EventArgs args)
     {
         Core.ChangeScene(new TitleScene());
     }
@@ -114,11 +123,17 @@ public class GameScene : EcsSceneBase
     {
         // Reset ECS world and re-register systems to ensure a clean state
         ResetWorld();
-        RegisterSystem(_slimeSystem);
-        RegisterSystem(_batSystem);
-        RegisterSystem(_collectSystem);
-        RegisterRenderSystem(_renderSystem);
-        RegisterRenderSystem(_slimeRenderSystem);
+        if (_slimeSystem is not null)
+            RegisterSystem(_slimeSystem);
+        if (_batSystem is not null)
+            RegisterSystem(_batSystem);
+        if (_collectSystem is not null)
+            RegisterSystem(_collectSystem);
+        if (_renderSystem is not null)
+            RegisterRenderSystem(_renderSystem);
+        if (_slimeRenderSystem is not null)
+            RegisterRenderSystem(_slimeRenderSystem);
+
 
         // Create room bounds entity (deflated to inside of dungeon)
         _roomBounds = Core.GraphicsDevice.PresentationParameters.Bounds;
@@ -139,7 +154,9 @@ public class GameScene : EcsSceneBase
         // Slime entity
         _slimeEntity = World.Create();
         _slimeTransform = new TransformComponent { Position = slimePos, Direction = Vector2.UnitX };
-        _slimeSprite = new SpriteComponent { Sprite = _slimeAnim };
+        if (_slimeAnim is null || _batAnim is null)
+            throw new InvalidOperationException("Animated sprites must be loaded before initializing a new game.");
+
         _slime = new SlimeComponent
         {
             Stride = _tilemap.TileWidth,
@@ -169,11 +186,6 @@ public class GameScene : EcsSceneBase
         _state = GameState.Playing;
     }
 
-    // Local cached assets created in LoadContent
-    private AnimatedSprite _slimeAnim;
-    private AnimatedSprite _batAnim;
-    private SoundEffect _bounceSfx;
-
     public override void LoadContent()
     {
         TextureAtlas atlas = TextureAtlas.FromFile(Core.Content, "images/atlas-definition.xml");
@@ -195,7 +207,7 @@ public class GameScene : EcsSceneBase
     public override void Update(GameTime gameTime)
     {
         // Update UI always
-        _ui.Update(gameTime);
+        _ui?.Update(gameTime);
 
         if (_state != GameState.Playing)
         {
@@ -250,7 +262,7 @@ public class GameScene : EcsSceneBase
                 if (_score != scoreComp.Score)
                 {
                     _score = scoreComp.Score;
-                    _ui.UpdateScoreText(_score);
+                    _ui?.UpdateScoreText(_score);
                     Core.Audio.PlaySoundEffect(_collectSoundEffect);
                 }
                 break;
@@ -300,12 +312,12 @@ public class GameScene : EcsSceneBase
     {
         if (_state == GameState.Paused)
         {
-            _ui.HidePausePanel();
+            _ui?.HidePausePanel();
             _state = GameState.Playing;
         }
         else
         {
-            _ui.ShowPausePanel();
+            _ui?.ShowPausePanel();
             _state = GameState.Paused;
             _saturation = 1.0f;
         }
@@ -313,7 +325,7 @@ public class GameScene : EcsSceneBase
 
     private void GameOver()
     {
-        _ui.ShowGameOverPanel();
+        _ui?.ShowGameOverPanel();
         _state = GameState.GameOver;
         _saturation = 1.0f;
     }
@@ -324,8 +336,15 @@ public class GameScene : EcsSceneBase
 
         if (_state != GameState.Playing)
         {
-            _grayscaleEffect.Parameters["Saturation"].SetValue(_saturation);
-            Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp, effect: _grayscaleEffect);
+            if (_grayscaleEffect != null)
+            {
+                _grayscaleEffect.Parameters["Saturation"].SetValue(_saturation);
+                Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp, effect: _grayscaleEffect);
+            }
+            else
+            {
+                Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            }
             _tilemap.Draw(Core.SpriteBatch);
         }
         else
@@ -340,6 +359,6 @@ public class GameScene : EcsSceneBase
         Core.SpriteBatch.End();
 
         // Draw UI
-        _ui.Draw();
+        _ui?.Draw();
     }
 }
