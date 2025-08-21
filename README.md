@@ -48,4 +48,4 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 > "Make it yours and use it freely. Build amazing games with ECS architecture!"
 
-**Author:** FJBC
+<sub>Author: FJBC</sub>
