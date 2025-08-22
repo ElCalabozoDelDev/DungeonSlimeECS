@@ -6,8 +6,7 @@ using DungeonSlime.Engine.Contracts;
 namespace DungeonSlime.Engine.ECS.Systems;
 
 /// <summary>
-/// Renders all entities having SpriteComponent and TransformComponent except slime entities (handled by Slime render logic).
-/// Assumes SpriteBatch has already begun in the scene.
+/// Unified rendering system that handles all sprite rendering including special slime segment rendering.
 /// </summary>
 public class RenderSystem : IRenderSystem
 {
@@ -18,11 +17,26 @@ public class RenderSystem : IRenderSystem
             if (!e.TryGet(out SpriteComponent sprite) || !e.TryGet(out TransformComponent transform))
                 continue;
 
-            // Skip slime entities; they are drawn by SlimeRenderSystem (segments)
-            if (e.Has<SlimeComponent>())
-                continue;
+            // Special handling for slime entities (render all segments)
+            if (e.TryGet(out SlimeComponent slime))
+            {
+                DrawSlimeSegments(slime, sprite);
+            }
+            else
+            {
+                // Regular sprite rendering for non-slime entities
+                sprite.Sprite.Draw(Core.SpriteBatch, transform.Position);
+            }
+        }
+    }
 
-            sprite.Sprite.Draw(Core.SpriteBatch, transform.Position);
+    private void DrawSlimeSegments(SlimeComponent slime, SpriteComponent sprite)
+    {
+        for (int i = 0; i < slime.Segments.Count; i++)
+        {
+            var seg = slime.Segments[i];
+            var pos = Vector2.Lerp(seg.At, seg.To, slime.MovementProgress);
+            sprite.Sprite.Draw(Core.SpriteBatch, pos);
         }
     }
 }

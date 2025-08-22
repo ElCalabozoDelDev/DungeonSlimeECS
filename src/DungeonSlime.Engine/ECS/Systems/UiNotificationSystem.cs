@@ -42,10 +42,12 @@ public class UiNotificationSystem : IUpdateSystem
         if (state != null && state.State != _lastGameState)
         {
             var current = state.State;
+            System.Console.WriteLine($"UiNotificationSystem: Game state changed from {_lastGameState} to {current}");
             _lastGameState = current;
 
             if (current == GameState.GameOver)
             {
+                System.Console.WriteLine("UiNotificationSystem: Raising GameOver event");
                 UiEvents.RaiseGameOver();
             }
         }

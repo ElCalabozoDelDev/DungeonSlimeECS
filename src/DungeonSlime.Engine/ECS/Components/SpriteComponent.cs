@@ -4,5 +4,5 @@ namespace DungeonSlime.Engine.ECS.Components;
 
 public class SpriteComponent
 {
-    public AnimatedSprite Sprite { get; set; }
+    public AnimatedSprite? Sprite { get; set; }
 }
